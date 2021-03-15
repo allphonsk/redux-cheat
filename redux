@@ -1,0 +1,381 @@
+
+
+
+
+# 
+$ npm i redux redux-thunk redux-devtools-extension react-redux
+
+1. Make store.js
+2. Import provider n wrap to main
+3. Reducer
+4. Actions
+5. Connect state to components 
+
+
+# BARE BONE STORE.JS
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { composeWithDevTools } from 'redux-devtools-extension'
+
+// 
+// import { productsReducer, productDetailsReducer  } from './reducers/productReducers'
+
+// reducers
+const reducer = combineReducers({ 
+    products: productsReducer, 
+})
+
+// initial state
+let initialState = {}
+
+// middleware
+const middlware = [thunk];
+const store = createStore(reducer, initialState, composeWithDevTools(applyMiddleware(...middlware)))
+
+export default store;
+
+
+# INDEX JS
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+import { Provider } from 'react-redux'
+import store from './store'
+
+  <Provider store={store}>
+    <App />
+  </Provider> 
+
+$
+
+
+
+# REDUCER & CONSTANTS
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+export const ALL_PRODUCTS_REQUEST = 'ALL_PRODUCTS_REQUEST'
+export const ALL_PRODUCTS_SUCCESS = 'ALL_PRODUCTS_SUCCESS'
+export const ALL_PRODUCTS_FAIL = 'ALL_PRODUCTS_FAIL
+
+# import const from constant
+import { ALL_PRODUCTS_REQUEST, ALL_PRODUCTS_SUCCESS,  ALL_PRODUCTS_FAIL, } from '../constants/
+
+# reducer
+export const productsReducer = (state = { products: [] }, action) => {
+    switch (action.type) {
+        case ALL_PRODUCTS_REQUEST:
+            return {
+                loading: true,
+                products: []
+            }
+
+        case ALL_PRODUCTS_SUCCESS:
+            return {
+                loading: false,
+                products: action.payload.products,
+                productsCount: action.payload.productsCount
+            }
+
+        case ALL_PRODUCTS_FAIL:
+            return {
+                loading: false,
+                error: action.payload
+            }
+
+        case CLEAR_ERRORS:
+            return {
+                ...state,
+                error: null
+            }
+
+        default:
+            return state;
+    }
+
+}
+
+
+# add reducer to the store 
+
+# ACTIONS
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+$ npm i axios
+
+#
+import axios from 'axios';
+
+import { GET_FINANCE_DATA_FAILURE, GET_FINANCE_DATA_REQUEST, GET_FINANCE_DATA_SUCCESS } from "../constants/constants";
+ 
+
+export const  getStock = () => async (dispatch) => {
+    try {
+        dispatch({type: GET_FINANCE_DATA_REQUEST})
+        const ticker = 'aapl'
+        const url = `https://sandbox.iexapis.com/stable/stock/${ticker}/quote?token=Tsk_678b4f8a0c3b4032b11c7568fb24dc17`;
+        const { data } = await axios.get( url)
+
+        dispatch({
+            type: GET_FINANCE_DATA_SUCCESS,
+            payload: data
+        })
+
+    } catch (error) {
+        dispatch({
+            type: GET_FINANCE_DATA_FAILURE,
+            payload: error.response.data.message
+        })
+    }
+}
+
+
+
+
+# 5 CONNECT COMPONENTS WITH STATE
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# imports
+# in component I want to use/ access any state
+$ import { useDispatch, useSelector } from 'react-redux' 
+
+# import actions from actions
+$ import { getProducts } from '../actions/productsActions'
+
+
+# define useDispatch 
+# this is the call to actions
+$ const dispatch = useDispatch();
+
+# in this eg we use dispatch to call getproducts action
+$ dispatch(getProducts);
+
+# after the call, we get the results from the state
+# go to state on redux sev tools and see state name, 
+# state name comes from the store reducers in store.js
+$ const { loading, products } = useSelector(state => state.products)
+
+
+
+$ npm install styled-components
+$ import styled from 'styled-components';
+
+
+
+
+
+
+
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ Older redux
+
+// redux
+$ npm i redux
+
+# design store
+> obj we want eg book { name, author, pages, category}
+
+# create actions 
+> add item, remove item, updated item
+
+# reducer
+> function that takes state and action
+$ function reducer(state =[], action)
+	switch(action.type) {
+	case "ADD_BOOK":
+	return [
+	...state, { name: action.payload.name}]
+}
+
+# create store
+import { createStore } from "redux";
+import reducer from "./reducer";
+const store = createStore(reducer)
+export default store;
+
+$
+$
+$
+
+
+
+
+
+
+
+
+
+
+
+
+
+.
+
+
+
+
+
+
+
+
+
+
+.
+
+
+
+
+
+
+
+
+
+
+# # xxxxxxx  xxxxxxxxxxxxxx  xxxxxxxxxxxxxx  xxxxxxxxxxxxxx  xxxxxxxxxxxxxx  xxxxxxx
+# # xxxxxxx REDUX 1
+1 types
+2 action
+3 reducer
+4 store
+5 provider
+# 
+1 STORE
+2 ACTIONS
+3 REDUCER
+
+
+// INSTALL
+// react-redux library that binds both
+// redux-thunk middleware which allow us to use dispatch
+$ npm i redux react-redux redux-thunk
+
+
+// IN INDEX JS FILE
+// bring in the provider a react component acts as a glue  in main app/index js file
+$ import { Provider } from 'react-redux';
+$ import {createStore, applyMiddleware } from 'redux'; 
+$ const store = createStore(()=> [], {}, applyMiddleware())
+$ <Provider store={store}> </Provider>
+
+// TEST THAT IT SHOULD WORK...
+
+# // EG TWO
+# INDEX.JS
+import React from 'react';
+import ReactDOM from 'react-dom'; 
+import App from './App'; 
+
+//
+import {createStore } from 'redux'
+
+// ACTION 
+const increment = () => {
+  return {
+    type: 'INCREMENT'
+  } 
+}
+
+const decrement = () => {
+  return {
+    type: 'DECREMENT'
+  } 
+}
+
+
+// REDUCER
+const counter = (state = 20, action) =>{
+  switch (action.type) {
+    case 'INCREMENT':
+      return state + 1;
+    case 'DECREMENT':
+        return state - 1; 
+    default:
+      return state;
+  }
+}
+
+// STORE -> GLOBALL STATE
+let store = createStore(counter)
+
+// log
+store.subscribe(()=> console.log(store.getState()))
+
+// DISPATCH
+store.dispatch(increment());
+store.dispatch(increment());
+store.dispatch(decrement());
+
+
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+// reportWebVitals();
+
+
+// NEXT INFO CREATES AN ENTERPRISE SYSTEM
+
+# 1 CREATE STORE 
+# in root folder store.js
+// basic code
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { composeWithDevTools } from 'redux-devtools-extension';
+// get reducers
+import rootReducer from './reducers'
+
+// initial state
+const initialState = {};
+
+// middleware
+const middleWare = [thunk];
+
+
+const store = createStore(reducer, initialState, composeWithDevTools(applyMiddleware(...middlware)))
+
+export default store;
+
+
+
+# 2 CREATE ACTIONS
+# create actions folder
+# create file types.js 
+# add constants
+export const FETCH_POST = 'FETCH_POST'
+export const NEW_POST = 'NEW_POST'
+
+# create postAction.js file, here we put our actions
+
+
+# 3 CREATE REDUCER
+# create reducer folder, 
+# create postReducer.js file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
